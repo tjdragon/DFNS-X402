@@ -1,0 +1,25 @@
+{
+  "name": "version_2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node -O '{\"module\":\"commonjs\", \"verbatimModuleSyntax\": false}' src/demo.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^25.6.2",
+    "ethers": "^6.16.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "@dfns/sdk": "^0.8.20",
+    "@dfns/sdk-keysigner": "^0.8.20",
+    "dotenv": "^17.4.2"
+  }
+}

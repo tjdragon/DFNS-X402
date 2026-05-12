@@ -1,0 +1,70 @@
+@startuml
+autonumber
+skinparam Style strictuml
+skinparam SequenceMessageAlignment center
+skinparam shadowing false
+
+header x402 Protocol Implementation
+title x402 Payment Flow (DFNS as Signer & Facilitator)
+
+actor "Customer" as C
+participant "AI Agent" as A
+participant "Merchant API" as M
+
+box "DFNS Infrastructure (Secure Zone)" #F0F8FF
+    participant "DFNS Signer\n(HSM/MPC)" as S
+    participant "DFNS Facilitator\n(Relayer)" as F
+end box
+
+database "Blockchain\n(Base/Solana)" as B
+
+== Initial Request & 402 Challenge ==
+
+C -> A: Delegate Task (e.g. "Fetch Market Data")
+A -> M: GET /api/v1/data
+activate M
+M --> A: HTTP 402 Payment Required\nHeader: PAYMENT-REQUIRED (JSON)
+deactivate M
+
+note right of A
+  Challenge contains:
+  - Amount/Asset (e.g. 0.05 USDC)
+  - Chain ID
+  - Destination Address
+end note
+
+== Secure Signing Phase ==
+
+group Wallet Policy Check & Signing
+    A -> S: POST /v1/x402/sign\n(Auth Token + Challenge)
+    activate S
+    S -> S: Validate Spending Policy\n(e.g., daily limit check)
+    S -> S: Generate EIP-712 / EIP-3009 Message
+    S -> S: Sign with Customer Private Key (MPC/HSM)
+    S --> A: Signed Payment Payload (Base64)
+    deactivate S
+end
+
+== Payment Submission & Settlement ==
+
+A -> M: GET /api/v1/data (Retry)\nHeader: PAYMENT-SIGNATURE
+activate M
+
+group Settlement via Facilitator
+    M -> F: POST /v1/x402/settle\n(Signed Payload)
+    activate F
+    F -> F: Verify Sig & Recipient
+    F -> B: Broadcast Transaction (Gasless)
+    activate B
+    B --> F: Tx Confirmed (TxHash)
+    deactivate B
+    F --> M: 200 OK (Settlement Proof + Receipt)
+    deactivate F
+end
+
+M --> A: HTTP 200 OK (Data + PAYMENT-RESPONSE)
+deactivate M
+
+A -> C: Deliver Task Results
+
+@enduml
