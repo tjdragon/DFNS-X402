@@ -51,6 +51,8 @@ Here is a step-by-step breakdown of how the integration works, using an Amazon p
 
 To support this flow, you will build an **X402-Compatible Signing Endpoint** powered by DFNS.
 
+![X402 FLOW](docs/flow.jpeg)
+
 ### 1. The Signing Endpoint
 
 Your system exposes an endpoint (e.g., `/api/sign-x402`) that the AI agent calls. Before signing, your system must verify:
